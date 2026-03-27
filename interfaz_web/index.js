@@ -6,6 +6,7 @@
 */
 
 //      Requerimientos
+const fs = require('fs');
 const fsp = require('fs').promises;
 
 const restify = require("restify");
@@ -18,10 +19,10 @@ module.exports = new Promise((resolve, reject) => {
 
     //  Servidor Restify
     //  Con posibilidad de usar HTTPS
-	if ( typeof sslCertificate != "undefined" && typeof sslPrivateKey != "undefined" ) {
+	if ( process.env.SSL_CERT_PATH && process.env.SSL_KEY_PATH ) {
 		console.log("  > Usando certificado SSL");
-			const key = fs.readFileSync(sslPrivateKey, "utf8");
-            const cert = fs.readFileSync(sslCertificate, "utf8");
+		const key = fs.readFileSync(process.env.SSL_KEY_PATH, "utf8");
+		const cert = fs.readFileSync(process.env.SSL_CERT_PATH, "utf8");
 		var servidor = restify.createServer({
 			key: key,
 			certificate: cert
@@ -36,7 +37,7 @@ module.exports = new Promise((resolve, reject) => {
 	servidor.use(restify.plugins.queryParser()); // Datos GET
 
 	//	Servidor a escuchar en el puerto definido y ruta base para /
-	let puerto = 2544;
+	let puerto = process.env.PORT || 2544;
 	servidor.listen(puerto, () => {
 
 		console.log("  > Servidor web escuchando en puerto " + puerto);
