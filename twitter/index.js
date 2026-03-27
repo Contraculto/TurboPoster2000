@@ -2,9 +2,10 @@
 //	Publicar en twitter 2 veces al día
 
 //	Requirements
+const path = require('path');
 const fsp = require('fs').promises;
 const Twit = require('twit');
-const axios = require("axios"); 
+const axios = require("axios");
 
 module.exports = new Promise(async (resolve, reject) => {
 
@@ -25,7 +26,7 @@ module.exports = new Promise(async (resolve, reject) => {
             try {
 
                 //	Cargar tweets
-                var tweets = await fsp.readFile("./tweets.json");
+                var tweets = await fsp.readFile(path.join(__dirname, "tweets.json"));
                 tweets = JSON.parse(tweets);
                 console.log("Iniciando proceso...");
 
@@ -48,7 +49,7 @@ module.exports = new Promise(async (resolve, reject) => {
                             if ( tweets[i].imagen ) {
 
                                 console.log("  Hay archivo multimedia");
-                                let media_id = await this._subirArchivo("imagenes/" + tweets[i].imagen);
+                                let media_id = await Twitter._subirArchivo("imagenes/" + tweets[i].imagen);
                                 if ( media_id ) {
                                     tweet_formateado.media_ids = [media_id];
                                 }
@@ -58,12 +59,12 @@ module.exports = new Promise(async (resolve, reject) => {
                                 console.log("Publicando tweet: " + tweet_formateado);
                             }
 
-                            var publicado = await this._publicarTweet(tweet_formateado);
+                            var publicado = await Twitter._publicarTweet(tweet_formateado);
 
                             console.log("Publicación correcta!");
                             tweets[i].publicado = publicado;
                             tweets = JSON.stringify(tweets, null, "    ");
-                            await fsp.writeFile("tweets.json", tweets);
+                            await fsp.writeFile(path.join(__dirname, "tweets.json"), tweets);
 
                         } catch(e) {
                             console.log("  Error!");
